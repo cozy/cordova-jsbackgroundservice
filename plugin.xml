@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        id="io.cozy.jsbackgroundservice"
+        version="0.0.1">
+    <name>Javascript Background Service Plugin</name>
+    <description>
+        Plugin to run javascript code as android background services.
+    </description>
+
+    <!-- TODO !
+    <license>Apache 2.0</license>
+    <keywords>cordova,images,mediastore</keywords>
+    <repo>https://github.com/aenario/cordova-images-browser.git</repo>
+    <issue>https://github.com/aenario/cordova-images-browser/issues/</issue>
+    -->
+
+    <engines>
+        <engine name="cordova" version=">=3.0.0"/>
+    </engines>
+
+	<js-module src="www/jsbackgroundservice.js" name="JSBackgroundService">
+        <clobbers target="JSBackgroundService" />
+    </js-module>
+
+
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="JSBackgroundService" >
+                <param name="android-package" value="io.cozy.jsbackgroundservice.JSBackgroundServicePlugin" />
+            </feature>
+        </config-file>
+
+        <config-file target="AndroidManifest.xml" parent="/manifest">
+            <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+            <uses-permission android:name="android.permission.WAKE_LOCK"/>
+        </config-file>
+        <config-file target="AndroidManifest.xml" parent="/manifest/application">
+            <service android:name="io.cozy.jsbackgroundservice.WebViewService">
+                <intent-filter>         
+                    <action android:name="io.cozy.jsbackgroundservice.WebViewService"/>
+                </intent-filter>     
+            </service>
+        </config-file>
+        
+        <source-file src="src/android/JSBackgroundServicePlugin.java" target-dir="src/io/cozy/jsbackgroundservice" />
+        <source-file src="src/android/WebViewService.java" target-dir="src/io/cozy/jsbackgroundservice" />
+        <source-file src="src/android/ServiceAsActivity.java" target-dir="src/io/cozy/jsbackgroundservice" />
+
+    </platform>
+</plugin>
