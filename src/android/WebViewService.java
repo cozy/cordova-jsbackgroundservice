@@ -23,12 +23,13 @@ import android.webkit.WebViewClient;
 import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.Config;
 import android.os.Bundle;
-import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CordovaWebView;
 import android.content.Intent;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.app.Activity;
+import org.apache.cordova.CordovaPlugin;
+
 
 import android.webkit.JavascriptInterface;
 import android.app.AlarmManager;
@@ -42,7 +43,7 @@ import android.app.Service;
 import android.os.IBinder;
 public class WebViewService extends Service implements CordovaInterface {
 
-    private final static String TAG =  "JSBackgorundPlugin"
+    private final static String TAG =  "JSBackgorundPlugin";
 
     private CordovaWebView wv;
     private ServiceAsActivity dummyActivity;
@@ -52,8 +53,6 @@ public class WebViewService extends Service implements CordovaInterface {
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(TAG, "onCreate !");
-
         dummyActivity = new ServiceAsActivity(this);
         threadPool = Executors.newCachedThreadPool();
 
@@ -63,7 +62,6 @@ public class WebViewService extends Service implements CordovaInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.d(TAG, "onStartCommand !");
         createBackGroundView();
         return START_NOT_STICKY;
     }
@@ -74,8 +72,6 @@ public class WebViewService extends Service implements CordovaInterface {
 
     public void onDestroy() {
         super.onDestroy();
-        Log.d(TAG, "onDestroy !");
-
         destroyBackGroundView();
     }
 
@@ -94,9 +90,6 @@ public class WebViewService extends Service implements CordovaInterface {
     }
 
     public void createBackGroundView(){
-        Log.d(TAG, "createBackGroundView !");
-
-
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutParams params = new WindowManager.LayoutParams(
                    android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -108,9 +101,9 @@ public class WebViewService extends Service implements CordovaInterface {
 
         params.gravity = Gravity.TOP | Gravity.LEFT;
         params.x = 0;
-        params.y = 200;
-        params.width = 200;
-        params.height = 200;
+        params.y = 0;
+        params.width = 0;
+        params.height = 0;
 
         wv = new CordovaWebView(this);
         wv.setLayoutParams(new LinearLayout.LayoutParams(
@@ -137,8 +130,6 @@ public class WebViewService extends Service implements CordovaInterface {
 
     public void destroyBackGroundView() {
         // Should run in UI thread.
-        Log.d(TAG, "destroyBackGroundView !");
-
         if (wv.pluginManager != null) {
             wv.pluginManager.onDestroy();
         }
