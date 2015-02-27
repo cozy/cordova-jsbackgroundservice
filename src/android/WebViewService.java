@@ -92,11 +92,13 @@ public class WebViewService extends Service implements CordovaInterface {
     public void createBackGroundView(){
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutParams params = new WindowManager.LayoutParams(
-                   android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                   android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                   WindowManager.LayoutParams.TYPE_PHONE,
-                   WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
-                   PixelFormat.TRANSLUCENT
+
+
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT
            );
 
         params.gravity = Gravity.TOP | Gravity.LEFT;
