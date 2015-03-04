@@ -1,12 +1,16 @@
 module.exports = window.JSBackgroundService = {
 
     setRepeating: function(periodMillis, callback) {
-        return cordova.exec(callback, callback, "JSBackgroundService",
+        success = function() { callback(null); };
+        error = function(err) { callback(err); };
+        return cordova.exec(success, error, "JSBackgroundService",
             "setRepeating", [periodMillis]);
     },
 
     cancelRepeating: function(callback) {
-        return cordova.exec(callback, callback, "JSBackgroundService",
+        success = function() { callback(null); };
+        error = function(err) { callback(err); };
+        return cordova.exec(success, error, "JSBackgroundService",
             "cancelRepeating", []);
     },
 

@@ -31,12 +31,12 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             switch(Command.valueOf(action)) {
             case setRepeating: {
                 manager.startAlarmManager(data.optLong(0, -1));
-
+                callback.success();
             }; break;
 
             case cancelRepeating: {
                 manager.stopAlarmManager();
-
+                callback.success();
             }; break;
 
             case isRepeating: {
