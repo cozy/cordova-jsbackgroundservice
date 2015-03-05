@@ -8,7 +8,7 @@
         Plugin to run javascript code as android background services.
     </description>
 
-    <license>Apache 2.0</license>
+    <license>AGPL v3</license>
     <keywords>cordova,android,background service</keywords>
     <repo>https://github.com/jacquarg/cordova-jsbackgroundservice.git</repo>
     <issue>https://github.com/jacquarg/cordova-jsbackgroundservice/issues/</issue>

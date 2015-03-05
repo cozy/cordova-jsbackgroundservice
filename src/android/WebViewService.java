@@ -43,7 +43,7 @@ import android.app.Service;
 import android.os.IBinder;
 public class WebViewService extends Service implements CordovaInterface {
 
-    private final static String TAG =  "JSBackgorundPlugin";
+    private final static String TAG =  "JSBackgroundPlugin";
 
     private CordovaWebView wv;
     private ServiceAsActivity dummyActivity;
@@ -62,7 +62,12 @@ public class WebViewService extends Service implements CordovaInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        createBackGroundView();
+        if (wv == null) {
+            createBackGroundView();
+
+        } else {
+            Log.d(TAG, "WebView already running, skip");
+        }
         return START_NOT_STICKY;
     }
 
