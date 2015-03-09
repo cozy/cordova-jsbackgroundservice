@@ -10,13 +10,23 @@ import org.apache.cordova.CordovaPlugin;
 
 import android.text.TextUtils;
 
+import android.content.SharedPreferences;
+import android.content.Context;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CordovaInterface;
 
 public class JSBackgroundServicePlugin extends CordovaPlugin {
 
-    private static final String TAG = "JSBackgorundPlugin";
+    private static final String TAG = "JSBackgroundPlugin";
+
+    final static String PREFERENCES = "jsBgService";
+    final static String PREF_ACTIVITY_ALIVE = "activity_alive";
+    final static String PREF_ACTIVITY_FOREGROUND = "activity_foreground";
+    final static String PREF_IS_REPEATING = "is_repeating";
+    final static String PREF_LISTEN_NEW_PICTURE = "listen_new_pictures";
 
     private enum Command {
-        setRepeating, cancelRepeating, isRepeating
+        setRepeating, cancelRepeating, isRepeating, listenNewPictures
     }
 
     @Override
@@ -31,16 +41,25 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             switch(Command.valueOf(action)) {
             case setRepeating: {
                 manager.startAlarmManager(data.optLong(0, -1));
+                setPreference(PREF_IS_REPEATING, data.optBoolean(0, true));
                 callback.success();
             }; break;
 
             case cancelRepeating: {
                 manager.stopAlarmManager();
+                setPreference(PREF_IS_REPEATING, data.optBoolean(0, false));
                 callback.success();
             }; break;
 
             case isRepeating: {
                 callback.success(manager.isRepeating() ? "true" : "false");
+            }; break;
+
+            // TODO: put in new pictures plugin.
+            case listenNewPictures: {
+                setPreference(PREF_LISTEN_NEW_PICTURE,
+                    data.optBoolean(0, false));
+                callback.success();
             }; break;
 
             default: {
@@ -54,5 +73,44 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
                 TextUtils.join( ", ", Command.values()));
         }
         return result;
+    }
+
+    ////
+    // The 4 following method reflect CordovaApp Activity lifecycle in
+    // preferences. Service uses it later to avoid conflict around shared
+    // resources by it and CordovaApp Activity.
+    ////
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        setPreference(PREF_ACTIVITY_ALIVE, true);
+    }
+
+    public void onDestroy() {
+        setPreference(PREF_ACTIVITY_ALIVE, false);
+    }
+
+    /**
+    * Called when the activity will start interacting with the user.
+    *
+    * @param multitasking Flag indicating if multitasking is turned on for app
+    */
+    public void onResume(boolean multitasking) {
+        setPreference(PREF_ACTIVITY_FOREGROUND, true);
+    }
+
+    /**
+    * Called when the system is about to start resuming a previous activity.
+    *
+    * @param multitasking Flag indicating if multitasking is turned on for app
+    */
+    public void onPause(boolean multitasking) {
+        setPreference(PREF_ACTIVITY_FOREGROUND, false);
+    }
+
+    private void setPreference(String key, boolean value) {
+        SharedPreferences preferences = cordova.getActivity()
+            .getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
     }
 }

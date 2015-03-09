@@ -41,9 +41,13 @@ import android.content.IntentFilter;
 import android.content.Context;
 import android.app.Service;
 import android.os.IBinder;
+
+import android.content.SharedPreferences;
+
 public class WebViewService extends Service implements CordovaInterface {
 
     private final static String TAG =  "JSBackgroundPlugin";
+
 
     private CordovaWebView wv;
     private ServiceAsActivity dummyActivity;
@@ -62,7 +66,13 @@ public class WebViewService extends Service implements CordovaInterface {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (wv == null) {
+        // Avoid start Webview of the service while CordovaApp activity is running.
+        SharedPreferences sharedPrefs = getSharedPreferences(
+            JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+        boolean foreground = sharedPrefs.getBoolean(
+            JSBackgroundServicePlugin.PREF_ACTIVITY_FOREGROUND, false);
+
+        if (!foreground && wv == null) {
             createBackGroundView();
 
         } else {
@@ -76,14 +86,13 @@ public class WebViewService extends Service implements CordovaInterface {
     }
 
     public void onDestroy() {
-        super.onDestroy();
         destroyBackGroundView();
+        super.onDestroy();
     }
 
     //////
     // Run javascript as a service.
     //////
-
 
     private class JsObject {
         @JavascriptInterface
@@ -97,8 +106,6 @@ public class WebViewService extends Service implements CordovaInterface {
     public void createBackGroundView(){
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         LayoutParams params = new WindowManager.LayoutParams(
-
-
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 WindowManager.LayoutParams.TYPE_PHONE,
@@ -137,7 +144,13 @@ public class WebViewService extends Service implements CordovaInterface {
 
     public void destroyBackGroundView() {
         // Should run in UI thread.
-        if (wv.pluginManager != null) {
+
+        // If CordovaApp activity is still alive do not destroy the plugins.
+        SharedPreferences sharedPrefs = getSharedPreferences(
+            JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+        boolean alive = sharedPrefs.getBoolean(
+            JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
+        if (!alive && wv.pluginManager != null) {
             wv.pluginManager.onDestroy();
         }
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
@@ -146,6 +159,7 @@ public class WebViewService extends Service implements CordovaInterface {
         wv.clearHistory();
         wv.clearCache(true);
         wv.clearView();
+
         wv.destroy();
         wv = null;
     }

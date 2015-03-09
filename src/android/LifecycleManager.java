@@ -62,7 +62,7 @@ public class LifecycleManager {
 
         alarmManager.setInexactRepeating(
             AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            0,
+            SystemClock.elapsedRealtime() + periodMillis,
             periodMillis,
             getServicePendingIntent());
     }
