@@ -72,11 +72,14 @@ public class WebViewService extends Service implements CordovaInterface {
         boolean foreground = sharedPrefs.getBoolean(
             JSBackgroundServicePlugin.PREF_ACTIVITY_FOREGROUND, false);
 
-        if (!foreground && wv == null) {
+        if (foreground) {
+            // Let the foreground play. Shutdown the service.
+            stopSelf();
+        } else if (wv != null) {
+            Log.d(TAG, "Service WebView already running, let it works.");
+        } else { // !foreground && wv == null) {
             createBackGroundView();
 
-        } else {
-            Log.d(TAG, "WebView already running, skip");
         }
         return START_NOT_STICKY;
     }
@@ -145,23 +148,25 @@ public class WebViewService extends Service implements CordovaInterface {
     public void destroyBackGroundView() {
         // Should run in UI thread.
 
-        // If CordovaApp activity is still alive do not destroy the plugins.
-        SharedPreferences sharedPrefs = getSharedPreferences(
-            JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
-        boolean alive = sharedPrefs.getBoolean(
-            JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
-        if (!alive && wv.pluginManager != null) {
-            wv.pluginManager.onDestroy();
+        if (wv != null) {
+            // If CordovaApp activity is still alive do not destroy the plugins.
+            SharedPreferences sharedPrefs = getSharedPreferences(
+                JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+            boolean alive = sharedPrefs.getBoolean(
+                JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
+            if (!alive && wv.pluginManager != null) {
+                wv.pluginManager.onDestroy();
+            }
+            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            windowManager.removeView(wv);
+
+            wv.clearHistory();
+            wv.clearCache(true);
+            wv.clearView();
+
+            wv.destroy();
+            wv = null;
         }
-        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        windowManager.removeView(wv);
-
-        wv.clearHistory();
-        wv.clearCache(true);
-        wv.clearView();
-
-        wv.destroy();
-        wv = null;
     }
 
     //////
