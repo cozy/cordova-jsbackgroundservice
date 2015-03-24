@@ -41,7 +41,7 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             switch(Command.valueOf(action)) {
             case setRepeating: {
                 manager.startAlarmManager(data.optLong(0, -1));
-                setPreference(PREF_IS_REPEATING, data.optBoolean(0, true));
+                setPreference(PREF_IS_REPEATING, true);
                 callback.success();
             }; break;
 
