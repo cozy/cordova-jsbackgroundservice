@@ -15,6 +15,8 @@ import android.content.Context;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaInterface;
 
+import android.content.Intent;
+
 public class JSBackgroundServicePlugin extends CordovaPlugin {
 
     private static final String TAG = "JSBackgroundPlugin";
@@ -24,9 +26,11 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
     final static String PREF_ACTIVITY_FOREGROUND = "activity_foreground";
     final static String PREF_IS_REPEATING = "is_repeating";
     final static String PREF_LISTEN_NEW_PICTURE = "listen_new_pictures";
+    final static String PREF_SERVICE_RUNNING = "service_running";
+
 
     private enum Command {
-        setRepeating, cancelRepeating, isRepeating, listenNewPictures
+        setRepeating, cancelRepeating, isRepeating, listenNewPictures, startService, isRunning
     }
 
     @Override
@@ -39,6 +43,11 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             Command command = Command.valueOf(action);
 
             switch(Command.valueOf(action)) {
+            case startService: {
+                // TODO QD
+                cordova.getActivity().startService(new Intent(cordova.getActivity(), WebViewService.class));
+                callback.success();
+            }; break;
             case setRepeating: {
                 manager.startAlarmManager(data.optLong(0, -1));
                 setPreference(PREF_IS_REPEATING, true);
@@ -54,6 +63,14 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             case isRepeating: {
                 callback.success(manager.isRepeating() ? "true" : "false");
             }; break;
+
+            case isRunning: {
+                boolean running = cordova.getActivity()
+                    .getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+                    .getBoolean(PREF_SERVICE_RUNNING, false);
+                callback.success(running ? "true" : "false");
+            }; break;
+
 
             // TODO: put in new pictures plugin.
             case listenNewPictures: {

@@ -1,5 +1,6 @@
 package io.cozy.jsbackgroundservice;
 
+
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -42,25 +43,47 @@ import android.content.Context;
 import android.app.Service;
 import android.os.IBinder;
 
+
+
 import android.content.SharedPreferences;
 
-public class WebViewService extends Service implements CordovaInterface {
+///
+import java.util.ArrayList;
+
+import org.apache.cordova.ConfigXmlParser;
+import org.apache.cordova.CordovaPreferences;
+import org.apache.cordova.PluginEntry;
+import org.apache.cordova.CordovaInterfaceImpl;
+import org.apache.cordova.CordovaWebViewEngine;
+import org.apache.cordova.CordovaWebViewImpl;
+
+
+
+
+public class WebViewService extends Service {
 
     private final static String TAG =  "JSBackgroundPlugin";
 
-
-    private CordovaWebView wv;
     private ServiceAsActivity dummyActivity;
-    private ExecutorService threadPool;
+    protected CordovaWebView appView;
+
+
+    // Read from config.xml:
+    protected CordovaPreferences preferences;
+    protected ArrayList<PluginEntry> pluginEntries;
+    protected CordovaInterfaceImpl cordovaInterface;
 
     // Service lifecycle
+
     @Override
     public void onCreate() {
-        super.onCreate();
-        dummyActivity = new ServiceAsActivity(this);
-        threadPool = Executors.newCachedThreadPool();
+        // need to activate preferences before super.onCreate to avoid "requestFeature() must be called before adding content" exception
 
-        Config.init(getActivity());
+        dummyActivity = new ServiceAsActivity(this);
+        loadConfig();
+
+        super.onCreate();
+        cordovaInterface = makeCordovaInterface();
     }
 
 
@@ -75,10 +98,12 @@ public class WebViewService extends Service implements CordovaInterface {
         if (foreground) {
             // Let the foreground play. Shutdown the service.
             stopSelf();
-        } else if (wv != null) {
+        } else if (appView != null) {
             Log.d(TAG, "Service WebView already running, let it works.");
         } else { // !foreground && wv == null) {
-            createBackGroundView();
+            // Claim service is running
+            setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, true);
+            loadUrl();
 
         }
         return START_NOT_STICKY;
@@ -93,6 +118,38 @@ public class WebViewService extends Service implements CordovaInterface {
         super.onDestroy();
     }
 
+
+
+    ////
+
+    @SuppressWarnings("deprecation")
+    protected void loadConfig() {
+        ConfigXmlParser parser = new ConfigXmlParser();
+        parser.parse(this);
+        preferences = parser.getPreferences();
+        pluginEntries = parser.getPluginEntries();
+    }
+
+    /**
+     * Construct the default web view object.
+     * <p/>
+     * Override this to customize the webview that is used.
+     */
+    protected CordovaWebView makeWebView() {
+        return new CordovaWebViewImpl(makeWebViewEngine());
+    }
+
+    protected CordovaWebViewEngine makeWebViewEngine() {
+        return CordovaWebViewImpl.createEngine(dummyActivity, preferences);
+    }
+
+    protected CordovaInterfaceImpl makeCordovaInterface() {
+        return new CordovaInterfaceImpl(dummyActivity);
+    }
+
+    ////
+
+
     //////
     // Run javascript as a service.
     //////
@@ -106,121 +163,63 @@ public class WebViewService extends Service implements CordovaInterface {
         }
     }
 
-    public void createBackGroundView(){
-        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        LayoutParams params = new WindowManager.LayoutParams(
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                WindowManager.LayoutParams.TYPE_PHONE,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT
-           );
+    public void loadUrl() {
+        appView = makeWebView();
+        if (!appView.isInitialized()) {
+            appView.init(cordovaInterface, pluginEntries, preferences);
+        }
+        cordovaInterface.onCordovaInit(appView.getPluginManager());
 
-        params.gravity = Gravity.TOP | Gravity.LEFT;
-        params.x = 0;
-        params.y = 0;
-        params.width = 0;
-        params.height = 0;
+        WebView wv = (WebView)appView.getView();
 
-        wv = new CordovaWebView(this);
+        wv.setId(100);
         wv.setLayoutParams(new LinearLayout.LayoutParams(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT
-            ));
-        wv.getSettings().setJavaScriptEnabled(true);
-        //wv.setWebChromeClient(new WebChromeClient());
+        ));
+
+        //wv.getSettings().setJavaScriptEnabled(true);
+
+        /////wv.setWebChromeClient(new WebChromeClient());
 
         wv.addJavascriptInterface(new JsObject(), "service");
-        wv.loadUrl("file:///android_asset/www/backgroundservice.html");
+        //// wv.loadUrl("file:///android_asset/www/backgroundservice.html");
 
-        // wv.setWebViewClient(new WebViewClient() {
+        appView.loadUrlIntoView("file:///android_asset/www/backgroundservice.html", true);
 
-        //     @Override
-        //     public void onReceivedError(final WebView view, int errorCode,
-        //             String description, final String failingUrl) {
-        //         Log.d("Error","loading web view");
-        //         super.onReceivedError(view, errorCode, description, failingUrl);
-        //     }
-        // });
-        windowManager.addView(wv, params);
     }
 
     public void destroyBackGroundView() {
         // Should run in UI thread.
+        if (appView != null) {
+            appView.handleDestroy();
+            appView = null;
 
-        if (wv != null) {
-            // If CordovaApp activity is still alive do not destroy the plugins.
-            SharedPreferences sharedPrefs = getSharedPreferences(
-                JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
-            boolean alive = sharedPrefs.getBoolean(
-                JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
-            if (!alive && wv.pluginManager != null) {
-                wv.pluginManager.onDestroy();
-            }
-            WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-            windowManager.removeView(wv);
+            setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, false);
 
-            wv.clearHistory();
-            wv.clearCache(true);
-            wv.clearView();
+            // // If CordovaApp activity is still alive do not destroy the plugins.
+            // SharedPreferences sharedPrefs = getSharedPreferences(
+            //     JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+            // boolean alive = sharedPrefs.getBoolean(
+            //     JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
 
-            wv.destroy();
-            wv = null;
+            // TODO : test !!!
+
+
+            // if (!alive && appView.getPluginManager() != null) {
+            //     appView.getPluginManager().onDestroy();
+            // }
+            // WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+            // windowManager.removeView(wv);
+
         }
     }
 
-    //////
-    // CordovaInterface
-    //////
-
-    /**
-     * Launch an activity for which you would like a result when it finished. When this activity exits,
-     * your onActivityResult() method will be called.
-     *
-     * @param command     The command object
-     * @param intent      The intent to start
-     * @param requestCode   The request code that is passed to callback to identify the activity
-     */
-    public void startActivityForResult(CordovaPlugin command, Intent intent, int requestCode) {
-        // doesn't exist for services.
-        // do nothing.
-    }
-
-    /**
-     * Set the plugin to be called when a sub-activity exits.
-     *
-     * @param plugin      The plugin on which onActivityResult is to be called
-     */
-    public void setActivityResultCallback(CordovaPlugin plugin) {
-    }
-
-    /**
-     * Get the Android activity.
-     *
-     * @return the Activity
-     */
-    public Activity getActivity() {
-        return dummyActivity;
-    }
-
-
-    /**
-     * Called when a message is sent to plugin.
-     *
-     * @param id            The message id
-     * @param data          The message data
-     * @return              Object or null
-     */
-    public Object onMessage(String id, Object data) {
-        return null;
-    }
-
-    /**
-     * Returns a shared thread pool that can be used for background tasks.
-     */
-    @Override
-    public ExecutorService getThreadPool() {
-        return threadPool;
+    private void setPreference(String key, boolean value) {
+        SharedPreferences preferences = getSharedPreferences(JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
     }
 
 }
