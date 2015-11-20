@@ -70,6 +70,7 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
                 callback.success(running ? "true" : "false");
             }; break;
 
+
             case startMainActivity: {
                 //TODO : Z hard dependancy on cozy-mobile !
                 Intent intent = new Intent(cordova.getActivity(),
