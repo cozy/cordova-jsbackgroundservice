@@ -35,6 +35,14 @@ module.exports = window.JSBackgroundService = {
             "isRunning", []);
     },
 
+    startMainActivity: function(callback) {
+        success = function() { callback(); };
+        error = function(err) { callback(err); };
+
+        return cordova.exec(success, error, "JSBackgroundService",
+            "startMainActivity", []);
+    },
+
     listenNewPictures: function(listen, callback) {
         success = function() { callback(null); };
         error = function(err) { callback(err); };

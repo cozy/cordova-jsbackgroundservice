@@ -30,7 +30,7 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
 
 
     private enum Command {
-        setRepeating, cancelRepeating, isRepeating, listenNewPictures, startService, isRunning
+        setRepeating, cancelRepeating, isRepeating, listenNewPictures, startService, isRunning, startMainActivity
     }
 
     @Override
@@ -44,7 +44,6 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
 
             switch(Command.valueOf(action)) {
             case startService: {
-                // TODO QD
                 cordova.getActivity().startService(new Intent(cordova.getActivity(), WebViewService.class));
                 callback.success();
             }; break;
@@ -71,6 +70,18 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
                 callback.success(running ? "true" : "false");
             }; break;
 
+            case startMainActivity: {
+                //TODO : Z hard dependance on cozy-mobile !
+                Intent intent = new Intent(cordova.getActivity(),
+                    io.cozy.files_client.MainActivity.class);
+                // But generic way would need CATEGORY_DEFAULT in manifest to work.
+                // Intent intent = new Intent();
+                // intent.setAction(Intent.ACTION_MAIN);
+                // intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                // intent.setPackage(mContext.getPackageName());
+                cordova.getActivity().startActivity(intent);
+                callback.success();
+            }; break;
 
             // TODO: put in new pictures plugin.
             case listenNewPictures: {
