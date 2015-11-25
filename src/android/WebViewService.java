@@ -1,62 +1,24 @@
 package io.cozy.jsbackgroundservice;
 
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import android.util.Log;
-
-// Run webview in background
-import android.view.WindowManager;
-import android.webkit.WebView;
-import android.view.WindowManager.LayoutParams;
-import android.graphics.PixelFormat;
-import android.view.Gravity;
-import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
-import android.webkit.WebChromeClient;
-import android.webkit.WebViewClient;
-
-// Cordova webview...
-import org.apache.cordova.CordovaInterface;
-import org.apache.cordova.Config;
-import android.os.Bundle;
-import org.apache.cordova.CordovaWebView;
-import android.content.Intent;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import android.app.Activity;
-import org.apache.cordova.CordovaPlugin;
-
-
-import android.webkit.JavascriptInterface;
-import android.app.AlarmManager;
-import java.lang.System;
-import android.app.PendingIntent;
-
-import android.content.BroadcastReceiver;
-import android.content.IntentFilter;
-import android.content.Context;
-import android.app.Service;
-import android.os.IBinder;
-
-
-
-import android.content.SharedPreferences;
-
-///
 import java.util.ArrayList;
 
+import android.util.Log;
+import android.content.Intent;
+import android.app.Service;
+import android.os.IBinder;
+import android.content.SharedPreferences;
+import android.widget.LinearLayout;
+import android.webkit.WebView;
+import android.webkit.JavascriptInterface;
+
+import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.ConfigXmlParser;
 import org.apache.cordova.CordovaPreferences;
 import org.apache.cordova.PluginEntry;
 import org.apache.cordova.CordovaInterfaceImpl;
 import org.apache.cordova.CordovaWebViewEngine;
 import org.apache.cordova.CordovaWebViewImpl;
-
 
 
 
@@ -180,7 +142,6 @@ public class WebViewService extends Service {
 
         //wv.getSettings().setJavaScriptEnabled(true);
 
-        /////wv.setWebChromeClient(new WebChromeClient());
 
         wv.addJavascriptInterface(new JsObject(), "service");
         //// wv.loadUrl("file:///android_asset/www/backgroundservice.html");
@@ -196,22 +157,6 @@ public class WebViewService extends Service {
             appView = null;
 
             setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, false);
-
-            // // If CordovaApp activity is still alive do not destroy the plugins.
-            // SharedPreferences sharedPrefs = getSharedPreferences(
-            //     JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
-            // boolean alive = sharedPrefs.getBoolean(
-            //     JSBackgroundServicePlugin.PREF_ACTIVITY_ALIVE, false);
-
-            // TODO : test !!!
-
-
-            // if (!alive && appView.getPluginManager() != null) {
-            //     appView.getPluginManager().onDestroy();
-            // }
-            // WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-            // windowManager.removeView(wv);
-
         }
     }
 

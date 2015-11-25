@@ -70,6 +70,18 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
                 callback.success(running ? "true" : "false");
             }; break;
 
+            case startMainActivity: {
+                //TODO : Z hard dependance on cozy-mobile !
+                Intent intent = new Intent(cordova.getActivity(),
+                    io.cozy.files_client.MainActivity.class);
+                // But generic way would need CATEGORY_DEFAULT in manifest to work.
+                // Intent intent = new Intent();
+                // intent.setAction(Intent.ACTION_MAIN);
+                // intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                // intent.setPackage(mContext.getPackageName());
+                cordova.getActivity().startActivity(intent);
+                callback.success();
+            }; break;
 
             case startMainActivity: {
                 //TODO : Z hard dependancy on cozy-mobile !
