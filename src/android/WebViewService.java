@@ -78,6 +78,8 @@ public class WebViewService extends Service implements CordovaInterface {
         } else if (wv != null) {
             Log.d(TAG, "Service WebView already running, let it works.");
         } else { // !foreground && wv == null) {
+            // Claim service is running
+            setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, true);
             createBackGroundView();
 
         }
@@ -166,7 +168,17 @@ public class WebViewService extends Service implements CordovaInterface {
 
             wv.destroy();
             wv = null;
+
+            setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, false);
         }
+    }
+
+
+    private void setPreference(String key, boolean value) {
+        SharedPreferences preferences = getSharedPreferences(JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putBoolean(key, value);
+        editor.commit();
     }
 
     //////
@@ -222,5 +234,7 @@ public class WebViewService extends Service implements CordovaInterface {
     public ExecutorService getThreadPool() {
         return threadPool;
     }
+
+
 
 }
