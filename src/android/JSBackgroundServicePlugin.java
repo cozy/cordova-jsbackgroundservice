@@ -15,6 +15,8 @@ import android.content.Context;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.CordovaInterface;
 
+import android.content.Intent;
+
 public class JSBackgroundServicePlugin extends CordovaPlugin {
 
     private static final String TAG = "JSBackgroundPlugin";
@@ -24,9 +26,11 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
     final static String PREF_ACTIVITY_FOREGROUND = "activity_foreground";
     final static String PREF_IS_REPEATING = "is_repeating";
     final static String PREF_LISTEN_NEW_PICTURE = "listen_new_pictures";
+    final static String PREF_SERVICE_RUNNING = "service_running";
 
     private enum Command {
-        setRepeating, cancelRepeating, isRepeating, listenNewPictures
+        setRepeating, cancelRepeating, isRepeating, listenNewPictures,
+        startService, isRunning, startMainActivity
     }
 
     @Override
@@ -39,6 +43,10 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
             Command command = Command.valueOf(action);
 
             switch(Command.valueOf(action)) {
+            case startService: {
+                cordova.getActivity().startService(new Intent(cordova.getActivity(), WebViewService.class));
+                callback.success();
+            }; break;
             case setRepeating: {
                 manager.startAlarmManager(data.optLong(0, -1));
                 setPreference(PREF_IS_REPEATING, true);
@@ -53,6 +61,27 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
 
             case isRepeating: {
                 callback.success(manager.isRepeating() ? "true" : "false");
+            }; break;
+
+            case isRunning: {
+                boolean running = cordova.getActivity()
+                    .getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE)
+                    .getBoolean(PREF_SERVICE_RUNNING, false);
+                callback.success(running ? "true" : "false");
+            }; break;
+
+            case startMainActivity: {
+                //TODO : Z hard dependancy on cozy-mobile !
+                Intent intent = new Intent(cordova.getActivity(),
+                    io.cozy.files_client.MainActivity.class);
+                // But generic way would need CATEGORY_DEFAULT in manifest to work.
+                // Intent intent = new Intent();
+                // intent.setAction(Intent.ACTION_MAIN);
+                // intent.addCategory(Intent.CATEGORY_LAUNCHER);
+                // intent.setPackage(mContext.getPackageName());
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                cordova.getActivity().startActivity(intent);
+                callback.success();
             }; break;
 
             // TODO: put in new pictures plugin.
