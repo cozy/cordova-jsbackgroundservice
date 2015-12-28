@@ -39,6 +39,8 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.view.Display;
 
+import android.content.ComponentName;
+
 /**
  * Convert a Service in Activity, to let Cordova use it.
  *
@@ -51,6 +53,7 @@ public class ServiceAsActivity extends Activity {
 
     private Service service;
     private Intent dummyIntent;
+    private static final Class SCARESCROW_ACTIVITY_CLASS = io.cozy.files_client.MainActivity.class;
 
     public ServiceAsActivity(Service service) {
         this.service = service;
@@ -379,6 +382,16 @@ public class ServiceAsActivity extends Activity {
     @Override
     public void grantUriPermission(String toPackage, Uri uri, int modeFlags) {
         service.grantUriPermission(toPackage, uri, modeFlags);
+    }
+
+    @Override
+    public ComponentName getComponentName() {
+        // Android 19 (4.4.*) call this method during webview creation,
+        // to get ActivityInfo:
+        // com.android.org.chromium.content.browser.ContentViewCore
+        // .hasHardwareAcceleration(ContentViewCore.java:660)
+        // This trick allows to pass this test with the service.
+        return new ComponentName(this, SCARESCROW_ACTIVITY_CLASS);
     }
 
     @Override
