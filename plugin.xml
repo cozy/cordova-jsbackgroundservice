@@ -2,7 +2,7 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         xmlns:android="http://schemas.android.com/apk/res/android"
         id="io.cozy.jsbackgroundservice"
-        version="0.0.1">
+        version="1.1.1">
     <name>Javascript Background Service Plugin</name>
     <description>
         Plugin to run javascript code as android background services.
@@ -10,8 +10,8 @@
 
     <license>AGPL v3</license>
     <keywords>cordova,android,background service</keywords>
-    <repo>https://github.com/jacquarg/cordova-jsbackgroundservice.git</repo>
-    <issue>https://github.com/jacquarg/cordova-jsbackgroundservice/issues/</issue>
+    <repo>https://github.com/cozy/cordova-jsbackgroundservice.git</repo>
+    <issue>https://github.com/cozy/cordova-jsbackgroundservice/issues/</issue>
 
     <engines>
         <engine name="cordova" version=">=3.0.0"/>

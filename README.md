@@ -2,14 +2,14 @@
 
 Plugin to run javascript code as android background services.
 
-The background service load a whole page and needs a (hidden) window to do that, so the plugin requires [SYSTEM_ALERT_WINDOW](http://developer.android.com/reference/android/Manifest.permission.html#SYSTEM_ALERT_WINDOW) permission to work.
 
 ## Supported Platforms
-Android only. (Tested on Lollipop).
+Android only. (Used on 4.0.4 up to latest).
 
 ## License
 
-This cordova plugin is developed by Cozy Cloud and distributed under the AGPL v3 license.
+This cordova plugin is developed by Cozy Cloud and distributed under the [MIT](https://github.com/cozy/cordova-jsbackgroundservice/blob/master/LICENSE.md)
+
 
 ## What is Cozy?
 
