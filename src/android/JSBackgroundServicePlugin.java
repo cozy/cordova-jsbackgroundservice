@@ -110,7 +110,10 @@ public class JSBackgroundServicePlugin extends CordovaPlugin {
     // resources by it and CordovaApp Activity.
     ////
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
         setPreference(PREF_ACTIVITY_ALIVE, true);
+        // Initialize occurs during app start.
+        setPreference(PREF_ACTIVITY_FOREGROUND, true);
     }
 
     public void onDestroy() {
