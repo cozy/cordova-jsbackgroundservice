@@ -156,9 +156,11 @@ public class WebViewService extends Service {
             appView.handleDestroy();
             appView = null;
 
-            setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, false);
         }
+
+        setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, false);
     }
+
 
     private void setPreference(String key, boolean value) {
         SharedPreferences preferences = getSharedPreferences(JSBackgroundServicePlugin.PREFERENCES, MODE_PRIVATE);
