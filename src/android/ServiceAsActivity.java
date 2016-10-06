@@ -164,6 +164,11 @@ public class ServiceAsActivity extends Activity {
     }
 
     @Override
+    public int checkSelfPermission(String permission) {
+        return service.checkSelfPermission(permission);
+    }
+
+    @Override
     public int checkUriPermission(Uri uri, int pid, int uid, int modeFlags) {
         return service.checkUriPermission(uri, pid, uid, modeFlags);
     }
@@ -383,6 +388,11 @@ public class ServiceAsActivity extends Activity {
     public void grantUriPermission(String toPackage, Uri uri, int modeFlags) {
         service.grantUriPermission(toPackage, uri, modeFlags);
     }
+
+//    @Override
+//    public abstract boolean isDeviceProtectedStorage() {
+//        return service.isDeviceProtectedStorage();
+//    }
 
     @Override
     public ComponentName getComponentName() {
