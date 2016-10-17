@@ -389,10 +389,10 @@ public class ServiceAsActivity extends Activity {
         service.grantUriPermission(toPackage, uri, modeFlags);
     }
 
-//    @Override
-//    public abstract boolean isDeviceProtectedStorage() {
-//        return service.isDeviceProtectedStorage();
-//    }
+    @Override
+    public boolean isDeviceProtectedStorage() {
+        return service.isDeviceProtectedStorage();
+    }
 
     @Override
     public ComponentName getComponentName() {
