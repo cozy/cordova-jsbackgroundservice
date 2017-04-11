@@ -146,7 +146,7 @@ public class WebViewService extends Service {
         wv.addJavascriptInterface(new JsObject(), "service");
         //// wv.loadUrl("file:///android_asset/www/backgroundservice.html");
 
-        appView.loadUrlIntoView("file:///android_asset/www/backgroundservice.html", true);
+        appView.loadUrlIntoView("file:///android_asset/www/index.html?backgroundservice=true", true);
 
     }
 
