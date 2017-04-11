@@ -53,7 +53,7 @@ public class ServiceAsActivity extends Activity {
 
     private Service service;
     private Intent dummyIntent;
-    private static final Class SCARESCROW_ACTIVITY_CLASS = io.cozy.files_client.MainActivity.class;
+    private static final Class SCARESCROW_ACTIVITY_CLASS = io.cozy.drive.mobile.MainActivity.class;
 
     public ServiceAsActivity(Service service) {
         this.service = service;
