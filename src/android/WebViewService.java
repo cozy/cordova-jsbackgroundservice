@@ -66,7 +66,12 @@ public class WebViewService extends Service {
             // Claim service is running
             setPreference(JSBackgroundServicePlugin.PREF_SERVICE_RUNNING, true);
 
-            loadUrl();
+            try {
+                loadUrl();
+            }
+            catch (RuntimeException e) {
+                Log.e("Cozy Drive", "exception", e);                
+            }
         }
         return START_NOT_STICKY;
     }
