@@ -139,7 +139,7 @@ public class WebViewService extends Service {
 
         WebView wv = (WebView)appView.getView();
 
-        int webViewId = 100
+        int webViewId = 100;
         wv.setId(webViewId);
         wv.setLayoutParams(new LinearLayout.LayoutParams(
                     android.view.ViewGroup.LayoutParams.MATCH_PARENT,
