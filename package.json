@@ -1,0 +1,29 @@
+{
+    "name": "cordova-js-background-service",
+    "version": "1.2.0",
+    "description": "Plugin to run javascript code as android background services.",
+    "cordova": {
+        "id": "io.cozy.jsbackgroundservice",
+        "platforms": [
+            "android"
+        ]
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/cozy/cordova-jsbackgroundservice.git"
+    },
+    "keywords": [
+    ],
+    "engines": [
+        {
+            "name": "cordova",
+            "version": ">=5.0.0"
+        }
+    ],
+    "author": "",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/cozy/cordova-jsbackgroundservice/issues"
+    },
+    "homepage": "https://github.com/cozy/cordova-jsbackgroundservice#readme"
+}
